@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import { useSocketContext } from "../../context/SocketContext";
 
@@ -15,7 +15,7 @@ const WikipediaNavigator = ({
 }) => {
   const [pageContent, setPageContent] = useState("");
   const [gameOver, setGameOver] = useState(false);
-  const contentRef = useRef(null);  // For scrolling
+  const contentRef = useRef(null);  // Single ref for both content and scrollable container
   const targetReached = currentPage === targetPage;
   const { socket } = useSocketContext();
 
@@ -30,7 +30,6 @@ const WikipediaNavigator = ({
           origin: "*",  // To handle CORS
         },
       });
-      
       setPageContent(response.data.parse.text["*"]);
     } catch (error) {
       console.error("Error fetching Wikipedia page content:", error);
@@ -45,6 +44,7 @@ const WikipediaNavigator = ({
   // Handle link clicks within the Wikipedia content
   useEffect(() => {
     if (!socket) return;
+
     const handleLinkClick = (event) => {
       event.preventDefault();
 
@@ -59,10 +59,6 @@ const WikipediaNavigator = ({
         }
 
         setCurrentPage(newPage);  // Navigate to the new page
-        // setClicks((prevClicks) => prevClicks + 1);  // Increment the click counter
-
-        // // Emit the page change event to the opponent
-        // socket.emit("navigate_page", { room: roomId, newPage, clicks: clicks + 1 });
       }
     };
 
@@ -73,34 +69,49 @@ const WikipediaNavigator = ({
     return () => {
       contentDiv?.removeEventListener("click", handleLinkClick);  // Clean up the event listener
     };
-  }, [pageContent, isOpponent, clicks, setCurrentPage, targetPage, roomId, socket]);
+  }, [pageContent, isOpponent, setCurrentPage, targetPage, roomId, socket]);
 
+  // Handle scrolling and emit scroll event to the server
+  const handleScroll = useCallback(() => {
+    if (!contentRef.current || !socket) return;
 
-  // window.addEventListener('scroll', () => {
-  //   const scrollPosition = window.scrollY;
-  //   console.log(scrollPosition);
-  //   // Emit the scroll position to the server
-  //   socket.emit('scroll', { roomId, scrollPosition });
-  // });
+    const scrollPosition = contentRef.current.scrollTop;
+    console.log(`Scroll position: ${scrollPosition}`);  // Check if the scroll event is being triggered
+    socket.emit("scroll", { roomId, scrollPosition });
+  }, [socket, roomId]);
 
-  // Handle opponent's navigation events
-  // useEffect(() => {
-  //   if (!socket) return;
+  // Add scroll listener and emit scroll event
+  useEffect(() => {
+    const contentDiv = contentRef.current;
+    if (!contentDiv || isOpponent) return;
+    
+    contentDiv.addEventListener("scroll", handleScroll);
 
-  //   // Listen for navigation event from the opponent
-  //   socket.on('syncScroll', (data) => {
-  //     // Scroll to the received position
-  //     if(!isOpponent) return
-  //     window.scrollTo(0, data.scrollPosition);
-  //   });
+    return () => {
+      contentDiv.removeEventListener("scroll", handleScroll);  // Cleanup
+    };
+  }, [handleScroll]);
 
-  //   return () => {
-  //     socket.off("syncScroll");  // Clean up the listener
-  //   };
-  // }, [socket, isOpponent]);
+  // Listen for syncScroll event and sync opponent's scroll position
+  useEffect(() => {
+    if (!socket || !contentRef.current ) return;
+
+    socket.on("syncScroll", (data) => {
+      console.log(`Received syncScroll: ${data.scrollPosition}`);  // Check if the syncScroll event is received
+      if (!isOpponent) return;  // Don't apply scroll sync to opponent's view
+      contentRef.current.scrollTop = data.scrollPosition;  // Sync scroll position in this view
+    });
+
+    return () => {
+      socket.off("syncScroll");  // Cleanup listener
+    };
+  }, [socket, isOpponent]);
 
   return (
-    <div className="container mx-auto p-5 border-10">
+    <div className="container mx-auto p-5 border-10 overflow-y-auto"
+      ref={contentRef}  // Use contentRef for both scrolling and click handling
+      style={{ height: '500px', overflowY: !isOpponent ? 'scroll' : 'hidden' }}  // Make sure the container is scrollable
+    >
       <div className="flex flex-col md:flex-row justify-between">
         <p className="text-xl font-semibold">{user?.username}</p>
         <p className="text-xl font-semibold">Clicks: {clicks}</p>
@@ -115,7 +126,6 @@ const WikipediaNavigator = ({
         // Render the Wikipedia page content with unique IDs for each navigator
         <div
           id={`wiki-content-${navigatorId}`}
-          ref={contentRef}
           className={`prose prose-lg prose-blue max-w-none ${
             isOpponent ? "pointer-events-none" : ""  // Disable interaction for the opponent's screen
           }`}

@@ -109,12 +109,12 @@ io.on("connection", (socket) => {
       });
     
       
-    // socket.on('scroll', (data) => {
-    //       // Broadcast the scroll position to the other player
-    //     const {roomId, scrollPosition}=data;
-    //     console.log("Scroll position: ", scrollPosition);
-    //     socket.to(roomId).emit('syncScroll', scrollPosition);
-    // });
+    socket.on('scroll', (data) => {
+          // Broadcast the scroll position to the other player
+        const {roomId, scrollPosition}=data;
+        
+        socket.to(roomId).emit('syncScroll', {scrollPosition});
+    });
       
    
     
