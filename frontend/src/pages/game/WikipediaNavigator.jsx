@@ -22,15 +22,18 @@ const WikipediaNavigator = ({
   // Fetch Wikipedia page content from the MediaWiki API
   const fetchPageContent = async (pageTitle) => {
     try {
-      const response = await axios.get("https://en.wikipedia.org/w/api.php", {
-        params: {
-          action: "parse",
-          page: pageTitle,
-          format: "json",
-          origin: "*",  // To handle CORS
+      const response = await fetch('/api/wiki', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      });
-      setPageContent(response.data.parse.text["*"]);
+        body: JSON.stringify({ pageTitle }),
+        });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong!'); 
+      }
+      setPageContent(data);
     } catch (error) {
       console.error("Error fetching Wikipedia page content:", error);
     }
@@ -70,6 +73,12 @@ const WikipediaNavigator = ({
       contentDiv?.removeEventListener("click", handleLinkClick);  // Clean up the event listener
     };
   }, [pageContent, isOpponent, setCurrentPage, targetPage, roomId, socket]);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0;  // Scroll to top when new page is loaded
+    }
+  }, [pageContent]);
 
   // Handle scrolling and emit scroll event to the server
   const handleScroll = useCallback(() => {

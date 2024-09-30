@@ -5,6 +5,7 @@ import cors from "cors"
 import ConnectMongoDB from "./db/connectMongoDB.js";
 import dotenv from "dotenv";
 import authRoutes from './routes/auth.route.js'
+import wikiRoutes from './routes/wiki.route.js'
 import cookieParser from "cookie-parser";
 
 dotenv.config();
@@ -18,7 +19,8 @@ const io=new Server(server, {
 });
 app.use(express.json());
 app.use(cookieParser());
-app.use('/api/auth',authRoutes)
+app.use('/api/auth',authRoutes);
+app.use('/api/wiki', wikiRoutes);
 
 // To keep track of users' current page and clicks
 let users = {};
