@@ -41,6 +41,13 @@ const HomePage = () => {
     };
 
     useEffect(() => {
+        localStorage.removeItem("userPage");
+        localStorage.removeItem("userClicks");
+        localStorage.removeItem("opponentClicks" );
+        localStorage.removeItem("opponentPage");
+    })
+
+    useEffect(() => {
         if (!socket) return; 
 
         socket.on("Room_Joined", ({roomId}) => { 

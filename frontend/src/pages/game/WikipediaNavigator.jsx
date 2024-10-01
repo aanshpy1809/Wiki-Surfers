@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import { useSocketContext } from "../../context/SocketContext";
+import toast from "react-hot-toast";
 
 const WikipediaNavigator = ({
   currentPage,
@@ -31,11 +32,14 @@ const WikipediaNavigator = ({
         });
       const data = await response.json();
       if (!response.ok) {
+        
         throw new Error(data.error || 'Something went wrong!'); 
       }
       setPageContent(data);
+      return data;
     } catch (error) {
-      console.error("Error fetching Wikipedia page content:", error);
+      
+      toast.error(error.message);
     }
   };
 
@@ -47,7 +51,7 @@ const WikipediaNavigator = ({
   // Handle link clicks within the Wikipedia content
   useEffect(() => {
     if (!socket) return;
-
+    socket.connect();
     const handleLinkClick = (event) => {
       event.preventDefault();
 
@@ -60,8 +64,16 @@ const WikipediaNavigator = ({
           setGameOver(true);
           socket.emit("reached_target", roomId);  // Notify opponent that the target is reached
         }
-
+        
+        
         setCurrentPage(newPage);  // Navigate to the new page
+        setClicks((prev) => prev + 1);
+        localStorage.setItem("userClicks", clicks + 1);
+        localStorage.setItem("userPage", newPage);
+        console.log(socket)
+        // Emit the new page and incremented clicks
+        socket.emit("navigate_page", { room: roomId, newPage, clicks: clicks + 1 });
+        
       }
     };
 
@@ -80,12 +92,15 @@ const WikipediaNavigator = ({
     }
   }, [pageContent]);
 
+  
+
+
   // Handle scrolling and emit scroll event to the server
   const handleScroll = useCallback(() => {
     if (!contentRef.current || !socket) return;
 
     const scrollPosition = contentRef.current.scrollTop;
-    console.log(`Scroll position: ${scrollPosition}`);  // Check if the scroll event is being triggered
+    
     socket.emit("scroll", { roomId, scrollPosition });
   }, [socket, roomId]);
 
@@ -106,9 +121,10 @@ const WikipediaNavigator = ({
     if (!socket || !contentRef.current ) return;
 
     socket.on("syncScroll", (data) => {
-      console.log(`Received syncScroll: ${data.scrollPosition}`);  // Check if the syncScroll event is received
+        // Check if the syncScroll event is received
       if (!isOpponent) return;  // Don't apply scroll sync to opponent's view
       contentRef.current.scrollTop = data.scrollPosition;  // Sync scroll position in this view
+      
     });
 
     return () => {

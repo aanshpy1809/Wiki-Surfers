@@ -16,7 +16,7 @@ export const fetchWikiPage=async(req,res)=>{
             const decompressedData = await decompress(compressedData);
             const data = decompressedData.toString();
 
-            console.log('data from redis');
+            
             return res.status(200).json(data);
         }
         let response = await axios.get("https://en.wikipedia.org/w/api.php", {
@@ -28,8 +28,14 @@ export const fetchWikiPage=async(req,res)=>{
               redirects: true,
             },
           });
-          let htmldata = response.data.parse.text["*"];
 
+          if (response.data.error) {
+            console.log(response.data.error.info);
+            return res.status(400).json({ error: "Page not found! Please try other link" });
+          }
+          
+          let htmldata = response.data.parse.text["*"];
+          
           // Parse the HTML using cheerio to detect a manual redirect
           const $ = cheerio.load(htmldata);
       
@@ -49,7 +55,7 @@ export const fetchWikiPage=async(req,res)=>{
                 origin: "*",
               },
             });
-      
+            console.log("Refetched data");
             htmldata = response.data.parse.text["*"];  // Update with new page data
           }
 

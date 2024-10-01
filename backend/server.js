@@ -39,11 +39,16 @@ function generateRandomDigits(length = 6) {
 
 const userSocketMap={}
 const rooms=[];
+const userRoomMap={};
 
 io.on("connection", (socket) => {
     console.log('A user connected', socket.id)
     const userId=socket.handshake.query.userId;
+    
     if(userId!="undefined") userSocketMap[userId]=socket.id;
+    if(userId!="undefined" && userRoomMap[userId]){
+        socket.join(userRoomMap[userId]);
+    }
 
     socket.on("joinGame", (userId) => {
         let joined=false;
@@ -67,6 +72,7 @@ io.on("connection", (socket) => {
 
         
         socket.join(roomId);
+        userRoomMap[userId]=roomId;
         console.log(`User ${socket.id}, ${userId} joined room ${roomId}`);
         socket.emit("Room_Joined", { roomId, isEmpty }); // Emit an object
     });
@@ -105,8 +111,9 @@ io.on("connection", (socket) => {
         socket.emit("roomDetails",{room});
     });
     socket.on("navigate_page", (data) => {
-        console.log(data);
+        
         const { room, newPage, clicks } = data;
+        console.log(room,":" ,newPage);
         socket.to(room).emit("opponent_navigated", { newPage, clicks });
       });
     

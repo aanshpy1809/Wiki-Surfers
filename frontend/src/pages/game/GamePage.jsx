@@ -11,15 +11,18 @@ const GamePage = () => {
     const {data: authUser}=useQuery({queryKey: ["authUser"]});
     const [opponentId, setOpponentId]=useState(null);
     const [opponentUser, setOpponentUser]=useState(null);
-    const [currentPage1, setCurrentPage1] = useState("Shraddha_Kapoor");
-    const [clicks1, setClicks1] = useState(0);
-    const [currentPage2, setCurrentPage2] = useState("Shraddha_Kapoor");
-    const [clicks2, setClicks2] = useState(0);
+    const [currentPage1, setCurrentPage1] = useState(localStorage.getItem("userPage") || "Shraddha_Kapoor");
+    const [clicks1, setClicks1] = useState(Number(localStorage.getItem("userClicks"))|| 0);
+    const [currentPage2, setCurrentPage2] = useState(localStorage.getItem("opponentPage") || "Shraddha_Kapoor");
+    const [clicks2, setClicks2] = useState(Number(localStorage.getItem("opponentClicks")) || 0);
     const [opponentReachedTarget, setOpponentReachedTarget] = useState(false);
     const [isEmpty, setIsEmpty] = useState(false);
     const targetPage = "Instagram";
 
+    
+
     useEffect(() => {
+
         if(!opponentId) return;
         const fetchOpponent=async()=>{
             try {
@@ -44,6 +47,8 @@ const GamePage = () => {
         // Join a game room
         if (!socket) return;
 
+        socket.connect();
+
         // Notify server of the room the user has joined
         socket.emit("roomDetails", roomId);
 
@@ -67,9 +72,11 @@ const GamePage = () => {
 
         // Listen for opponent's navigation updates
         socket.on("opponent_navigated", ({ newPage, clicks }) => {
-            
+            console.log("Event recieved");
             setCurrentPage2(newPage);
             setClicks2(clicks);
+            localStorage.setItem("opponentClicks", clicks );
+            localStorage.setItem("opponentPage", newPage);
         });
 
         // Listen for opponent winning the game
@@ -104,9 +111,6 @@ const GamePage = () => {
                         currentPage={currentPage1}
                         setCurrentPage={(newPage) => {
                             setCurrentPage1(newPage);
-                            setClicks1((prev) => prev + 1);
-                            // Emit the new page and incremented clicks
-                            socket.emit("navigate_page", { room: roomId, newPage, clicks: clicks1 + 1 });
                         }}
                         targetPage={targetPage}
                         clicks={clicks1}
