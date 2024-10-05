@@ -50,6 +50,16 @@ io.on("connection", (socket) => {
         socket.join(userRoomMap[userId]);
     }
 
+    socket.on("clean",(userId)=>{
+        
+        if(userRoomMap[userId]){
+            console.log('here');
+            socket.to(userRoomMap[userId]).emit("opponentleft");
+            socket.leave(userRoomMap[userId]);
+            delete userRoomMap[userId];
+        }
+    })
+
     socket.on("joinGame", (userId) => {
         let joined=false;
         let isEmpty=true;
@@ -77,9 +87,17 @@ io.on("connection", (socket) => {
         socket.emit("Room_Joined", { roomId, isEmpty }); // Emit an object
     });
 
+    socket.on("roomLock",(roomId)=>{
+        
+        console.log("room id for locking is :",roomId);         
+        const room=rooms.find((room)=>room.roomId===roomId);
+        if(room==undefined) return;
+        room.lock=true;
+    })
+
     socket.on("createRoom",(userId)=>{
         let roomId = generateRandomDigits(6);
-        rooms.push({roomId:roomId,players:[userId],isEmpty:true, isPrivate:true});
+        rooms.push({roomId:roomId,players:[userId],isEmpty:true, isPrivate:true, lock:false});
         socket.join(roomId);
         socket.emit("Room_Joined", { roomId });
     })
@@ -129,13 +147,19 @@ io.on("connection", (socket) => {
     
       socket.on("reached_target", (room) => {
         socket.to(room).emit("opponent_won");
+        
       });
     
 
     socket.on("disconnect",()=>{
         console.log("user disconnected",socket.id)
+        
         delete userSocketMap[userId];
-        io.emit("getOnlineUsers",Object.keys(userSocketMap));
+        if(userRoomMap[userId]){
+            socket.to(userRoomMap[userId]).emit("opponentleft");
+            socket.leave(userRoomMap[userId]);
+            delete userRoomMap[userId];
+        }
     });
 
     

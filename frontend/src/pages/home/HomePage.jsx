@@ -3,8 +3,10 @@ import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import { useSocketContext } from '../../context/SocketContext';
 import { useNavigate } from 'react-router-dom';
+import useBackButtonConfirmation from '../../hooks/useBackButtonConfirmation';
 
 const HomePage = () => {
+    
     const {socket}  = useSocketContext();
     const [roomId, setRoomId] = useState("");
     const navigate = useNavigate(); // Move useNavigate here
@@ -12,6 +14,7 @@ const HomePage = () => {
         queryKey: ['authUser']
     });
     const queryClient = useQueryClient();
+    
 
     const { mutate: logout } = useMutation({
         mutationFn: async () => {
@@ -49,6 +52,8 @@ const HomePage = () => {
 
     useEffect(() => {
         if (!socket) return; 
+
+        socket.emit("clean", authUser._id);
 
         socket.on("Room_Joined", ({roomId}) => { 
             console.log(roomId);

@@ -21,7 +21,7 @@ const WikipediaNavigator = ({
   const { socket } = useSocketContext();
 
   // Fetch Wikipedia page content from the MediaWiki API
-  const fetchPageContent = async (pageTitle) => {
+  const fetchPageContent = async (pageTitle, check) => {
     try {
       const response = await fetch('/api/wiki', {
         method: 'POST',
@@ -35,7 +35,11 @@ const WikipediaNavigator = ({
         
         throw new Error(data.error || 'Something went wrong!'); 
       }
-      setPageContent(data);
+      if(!check){
+        setPageContent(data);
+      }
+      
+      
       return data;
     } catch (error) {
       
@@ -45,14 +49,15 @@ const WikipediaNavigator = ({
 
   // Fetch the content of the initial page when the component loads or when the page changes
   useEffect(() => {
-    fetchPageContent(currentPage);
+    
+    fetchPageContent(currentPage, false);
   }, [currentPage]);
 
   // Handle link clicks within the Wikipedia content
   useEffect(() => {
     if (!socket) return;
     socket.connect();
-    const handleLinkClick = (event) => {
+    const handleLinkClick =async (event) => {
       event.preventDefault();
 
       // Only handle clicks if this is NOT the opponent's view
@@ -65,13 +70,15 @@ const WikipediaNavigator = ({
           socket.emit("reached_target", roomId);  // Notify opponent that the target is reached
         }
         
-        
+        const check=await fetchPageContent(newPage, true);
+        console.log(check);
+        if(check===undefined){
+          return
+        }
         setCurrentPage(newPage);  // Navigate to the new page
         setClicks((prev) => prev + 1);
         localStorage.setItem("userClicks", clicks + 1);
         localStorage.setItem("userPage", newPage);
-        console.log(socket)
-        // Emit the new page and incremented clicks
         socket.emit("navigate_page", { room: roomId, newPage, clicks: clicks + 1 });
         
       }

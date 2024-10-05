@@ -60,6 +60,15 @@ a:hover {
   border: 1px solid #ddd;
 }
 
+[id^="wiki-content"] .hatnote, [id^="wiki-content"] .mbox, [id^="wiki-content"] .metadata {
+  display: none !important;
+}
+
+You may also need to hide certain table elements
+[id^="wiki-content"] table.infobox {
+  display: none;
+}
+
 
 button {
   border-radius: 8px;

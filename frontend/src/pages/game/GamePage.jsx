@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import WikipediaNavigator from './WikipediaNavigator';
-import io from 'socket.io-client';
 import { useSocketContext } from '../../context/SocketContext';
-import { useParams } from 'react-router-dom';
+import { unstable_usePrompt, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
+
+
+
+
 
 const GamePage = () => {
+    
+    
     const {socket} = useSocketContext();
     const {roomId} = useParams();
     const {data: authUser}=useQuery({queryKey: ["authUser"]});
@@ -16,11 +22,18 @@ const GamePage = () => {
     const [currentPage2, setCurrentPage2] = useState(localStorage.getItem("opponentPage") || "Shraddha_Kapoor");
     const [clicks2, setClicks2] = useState(Number(localStorage.getItem("opponentClicks")) || 0);
     const [opponentReachedTarget, setOpponentReachedTarget] = useState(false);
-    const [isEmpty, setIsEmpty] = useState(false);
+    const [isEmpty, setIsEmpty] = useState(true);
+    const [opponentLeft,setOpponentLeft]=useState(false);
+    const [startCounter, setStartCounter] = useState(false);
+    const [counter,setCounter]=useState(3);
     const targetPage = "Instagram";
-
     
 
+    const navigate = useNavigate();
+
+  // Handle the "back button" event
+  
+    
     useEffect(() => {
 
         if(!opponentId) return;
@@ -40,21 +53,56 @@ const GamePage = () => {
 
         fetchOpponent();
         
-    },[opponentId])
+    },[opponentId]);
+
+    useEffect(() => {
+        if (!startCounter) return;
+
+        const countdown = setInterval(() => {
+            setCounter((prevCounter) => prevCounter - 1);
+        }, 1000);
+
+        if (counter === 0) {
+            clearInterval(countdown);
+            setIsEmpty(false);
+            setStartCounter(false);
+        }
+
+        return () => clearInterval(countdown); // Cleanup the interval
+    }, [startCounter, counter]);
+    
+
+    // useEffect(() => { 
+    //     if(!startCounter) return
+        
+        
+    //     setTimeout(()=>{
+    //         setIsEmpty(false);
+    //         setStartCounter(false);
+    //     },[3000]);
+    // },[startCounter])
     
 
     useEffect(() => {
         // Join a game room
         if (!socket) return;
 
-        socket.connect();
-
         // Notify server of the room the user has joined
         socket.emit("roomDetails", roomId);
 
         // Listen for room details (e.g., if the room is empty or has other users)
         socket.on("roomDetails", ( {room} ) => {
-            if (room.isEmpty) setIsEmpty(true);
+            if(room.lock){
+                toast.error("Room is already full! Please start a new game");
+                navigate('/');
+                return ;
+            }
+            if (room.isEmpty) {
+                setIsEmpty(true);
+            }else{
+                setStartCounter(true);
+                socket.emit("roomLock", roomId)
+            }
             console.log(room);
             for(const player in room.players){
                 if(room.players[player] !== authUser._id){
@@ -67,7 +115,7 @@ const GamePage = () => {
         // Listen for when another user joins the room
         socket.on("userJoined", (userId) => {
             setOpponentId(userId);
-            setIsEmpty(false);
+            setStartCounter(true);
         });
 
         // Listen for opponent's navigation updates
@@ -84,6 +132,10 @@ const GamePage = () => {
             setOpponentReachedTarget(true);
         });
 
+        socket.on("opponentleft",()=>{
+            setOpponentLeft(true);
+        })
+
         return () => {
             socket.off("roomDetails");
             socket.off("userJoined");
@@ -94,6 +146,7 @@ const GamePage = () => {
 
     return (
         <div>
+            <marquee className="text-white bg-red-500" behavior="scroll" direction="left" delay="100">Please do not click on the browser back button until the game is over!</marquee>
             <div className="flex flex-col justify-center items-center w-full">
                 <h1 className="text-3xl font-bold mb-4">Wikipedia Navigator</h1>
                 <div className="flex flex-col md:flex-row justify-between">
@@ -101,12 +154,29 @@ const GamePage = () => {
                         <p className="text-xl font-semibold">You: {currentPage1.replace("_", " ")}</p>
                         <p className="text-xl font-semibold">Opponent: {currentPage2.replace("_", " ")}</p>
                         <p className="text-xl font-semibold">Target Page: {targetPage.replace("_", " ")}</p>
+                        {startCounter && <p className="text-xl font-semibold">Game starts in {counter}</p>}
                     </div>
                 </div>
             </div>
 
-            <div className="flex h-screen">
-                <div className="w-1/2 overflow-auto border-r border-gray-300">
+            {opponentLeft && <div className="flex justify-center  border-gray-300">
+                    <p className="text-green-500 text-center mt-4">Opponent left the game and you won!</p> 
+            </div>}
+            {isEmpty && 
+                <div className="flex h-screen">
+                    <div className="w-1/2 overflow-auto">
+                        <p className="text-green-500 text-center mt-4">{authUser.username}</p>
+                    </div>
+                    <div className="w-1/2 overflow-auto">
+                        <p className="text-red-500 text-center mt-4">Waiting for a user to join</p>
+                    </div>
+                </div>
+                
+            }
+
+            {!opponentLeft && !isEmpty && <div className="flex h-screen">
+                
+                {<div className="w-1/2 overflow-auto border-r border-gray-300">
                     <WikipediaNavigator
                         currentPage={currentPage1}
                         setCurrentPage={(newPage) => {
@@ -120,9 +190,9 @@ const GamePage = () => {
                         roomId={roomId}
                         user={authUser}
                     />
-                </div>
+                </div>}
 
-                {isEmpty ? (
+                {isEmpty  ? (
                     <div className="w-1/2 overflow-auto">
                         <p className="text-red-500 text-center mt-4">Waiting for a user to join</p>
                     </div>
@@ -145,7 +215,8 @@ const GamePage = () => {
                         )}
                     </div>
                 )}
-            </div>
+            </div>}
+            
         </div>
     );
 };
