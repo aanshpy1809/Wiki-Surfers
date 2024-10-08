@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import { useSocketContext } from '../../context/SocketContext';
 import { useNavigate } from 'react-router-dom';
-import useBackButtonConfirmation from '../../hooks/useBackButtonConfirmation';
+
 
 const HomePage = () => {
     
@@ -48,6 +48,7 @@ const HomePage = () => {
         localStorage.removeItem("userClicks");
         localStorage.removeItem("opponentClicks" );
         localStorage.removeItem("opponentPage");
+        localStorage.removeItem("gameStarted");
     })
 
     useEffect(() => {

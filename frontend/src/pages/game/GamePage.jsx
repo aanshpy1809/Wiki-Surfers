@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import WikipediaNavigator from './WikipediaNavigator';
 import { useSocketContext } from '../../context/SocketContext';
 import { unstable_usePrompt, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -31,7 +31,7 @@ const GamePage = () => {
 
     const navigate = useNavigate();
 
-  // Handle the "back button" event
+    
   
     
     useEffect(() => {
@@ -57,6 +57,7 @@ const GamePage = () => {
 
     useEffect(() => {
         if (!startCounter) return;
+        
 
         const countdown = setInterval(() => {
             setCounter((prevCounter) => prevCounter - 1);
@@ -66,6 +67,7 @@ const GamePage = () => {
             clearInterval(countdown);
             setIsEmpty(false);
             setStartCounter(false);
+            localStorage.setItem("gameStarted", true );
         }
 
         return () => clearInterval(countdown); // Cleanup the interval
@@ -85,20 +87,23 @@ const GamePage = () => {
 
     useEffect(() => {
         // Join a game room
-        if (!socket) return;
+        if (!socket ) return;
+        
 
         // Notify server of the room the user has joined
         socket.emit("roomDetails", roomId);
 
         // Listen for room details (e.g., if the room is empty or has other users)
         socket.on("roomDetails", ( {room} ) => {
-            if(room.lock){
+            if(room.lock && !room.players.includes(authUser._id) ){
                 toast.error("Room is already full! Please start a new game");
                 navigate('/');
                 return ;
             }
             if (room.isEmpty) {
                 setIsEmpty(true);
+            }else if (localStorage.getItem("gameStarted")){
+                setIsEmpty(false);
             }else{
                 setStartCounter(true);
                 socket.emit("roomLock", roomId)
@@ -132,15 +137,24 @@ const GamePage = () => {
             setOpponentReachedTarget(true);
         });
 
-        socket.on("opponentleft",()=>{
+        socket.on("opponentLeft",()=>{
             setOpponentLeft(true);
         })
+
+        socket.on("opponentMightHaveLeft",()=>{
+            setTimeout(()=>{
+                socket.emit("checkForOpponent", roomId);
+            }, [5000])
+            
+        });
 
         return () => {
             socket.off("roomDetails");
             socket.off("userJoined");
             socket.off("opponent_navigated");
             socket.off("opponent_won");
+            socket.off("opponentLeft");
+            socket.off("opponentMightHaveLeft")
         };
     }, [socket, roomId]);
 

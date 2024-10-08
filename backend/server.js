@@ -38,7 +38,7 @@ function generateRandomDigits(length = 6) {
 }
 
 const userSocketMap={}
-const rooms=[];
+const rooms={};
 const userRoomMap={};
 
 io.on("connection", (socket) => {
@@ -48,13 +48,15 @@ io.on("connection", (socket) => {
     if(userId!="undefined") userSocketMap[userId]=socket.id;
     if(userId!="undefined" && userRoomMap[userId]){
         socket.join(userRoomMap[userId]);
+        rooms[userRoomMap[userId]].players.push(userId);
+        console.log(rooms[userRoomMap[userId]])
     }
 
     socket.on("clean",(userId)=>{
         
         if(userRoomMap[userId]){
             console.log('here');
-            socket.to(userRoomMap[userId]).emit("opponentleft");
+            socket.to(userRoomMap[userId]).emit("opponentLeft");
             socket.leave(userRoomMap[userId]);
             delete userRoomMap[userId];
         }
@@ -64,12 +66,12 @@ io.on("connection", (socket) => {
         let joined=false;
         let isEmpty=true;
         let roomId="";
-        for(const room of rooms){
-            if(room.isEmpty && !room.isPrivate){
-                room.players.push(userId);
-                room.isEmpty=false;
+        for(const room in rooms){
+            if(rooms[room].isEmpty && !rooms[room].isPrivate){
+                rooms[room].players.push(userId);
+                rooms[room].isEmpty=false;
                 isEmpty=false;
-                roomId=room.roomId
+                roomId=room
                 joined=true
                 socket.to(roomId).emit("userJoined",{userId});
                 break;
@@ -77,7 +79,7 @@ io.on("connection", (socket) => {
         }
         if(!joined){
             roomId = generateRandomDigits(6);
-            rooms.push({roomId:roomId,players:[userId],isEmpty:true,isPrivate:false});
+            rooms[roomId]={roomId:roomId,players:[userId],isEmpty:true,isPrivate:false};
         }
 
         
@@ -90,25 +92,25 @@ io.on("connection", (socket) => {
     socket.on("roomLock",(roomId)=>{
         
         console.log("room id for locking is :",roomId);         
-        const room=rooms.find((room)=>room.roomId===roomId);
+        const room=rooms[roomId];
         if(room==undefined) return;
         room.lock=true;
     })
 
     socket.on("createRoom",(userId)=>{
         let roomId = generateRandomDigits(6);
-        rooms.push({roomId:roomId,players:[userId],isEmpty:true, isPrivate:true, lock:false});
+        rooms[roomId]={roomId:roomId,players:[userId],isEmpty:true, isPrivate:true, lock:false};
         socket.join(roomId);
         socket.emit("Room_Joined", { roomId });
     })
     //privateRoom 
     socket.on("joinRoom",({roomId,userId})=>{
         let joined=false;
-        for(const room of rooms){
-            if(room.roomId===roomId && room.isEmpty){
-                room.players.push(userId);
-                room.isEmpty=false;
-                roomId=room.roomId
+        for(const room in rooms){
+            if(rooms[room].roomId===roomId && rooms[room].isEmpty){
+                rooms[room].players.push(userId);
+                rooms[room].isEmpty=false;
+                roomId=rooms[room].roomId
                 joined=true
                 socket.to(roomId).emit("userJoined",{userId});
                 break;
@@ -124,7 +126,7 @@ io.on("connection", (socket) => {
 
     socket.on("roomDetails",(roomId)=>{
         // console.log("room id is :",roomId);
-        const room=rooms.find((room)=>room.roomId===roomId);
+        const room=rooms[roomId]
         if(room==undefined) return;
         socket.emit("roomDetails",{room});
     });
@@ -149,6 +151,12 @@ io.on("connection", (socket) => {
         socket.to(room).emit("opponent_won");
         
       });
+
+      socket.on("checkForOpponent", (roomId) => {
+        if(rooms[roomId].players.length<2){
+            socket.emit("opponentLeft");
+        }
+      })
     
 
     socket.on("disconnect",()=>{
@@ -156,9 +164,12 @@ io.on("connection", (socket) => {
         
         delete userSocketMap[userId];
         if(userRoomMap[userId]){
-            socket.to(userRoomMap[userId]).emit("opponentleft");
+            
+            rooms[userRoomMap[userId]].players = rooms[userRoomMap[userId]].players.filter(item => item !== userId);
+            console.log(rooms[userRoomMap[userId]]);
+            socket.to(userRoomMap[userId]).emit("opponentMightHaveLeft");
             socket.leave(userRoomMap[userId]);
-            delete userRoomMap[userId];
+            // delete userRoomMap[userId];
         }
     });
 
