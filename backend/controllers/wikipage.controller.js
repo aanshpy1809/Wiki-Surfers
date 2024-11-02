@@ -55,14 +55,14 @@ export const fetchWikiPage=async(req,res)=>{
                 origin: "*",
               },
             });
-            console.log("Refetched data");
+            
             htmldata = response.data.parse.text["*"];  // Update with new page data
           }
 
           const compressedData = await compress(htmldata);
           await redis.set(pageTitle, compressedData); 
           await redis.expire(pageTitle, 86400); 
-          console.log('fetched from backend');
+          
         
         
         

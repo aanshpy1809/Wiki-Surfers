@@ -21,29 +21,15 @@ const userSchema = new mongoose.Schema(
 			required: true,
 			unique: true,
 		},
-		followers: [
-			{
-				type: mongoose.Schema.Types.ObjectId,
-				ref: "User",
-				default: [],
-			},
-		],
+		gender: {
+			type: String,
+			required: true,
+			enum: ["male", "female"],
+		},
 		profileImg: {
 			type: String,
 			default: "",
-		},
-        gamesWon: {
-            type: Number,
-            default: 0  
-        },
-        gamesLost: {
-            type: Number,
-            default: 0
-        },
-        coins: {
-            type: Number,
-            default: 0
-        }
+		}
 	},
 	{ timestamps: true }
 );

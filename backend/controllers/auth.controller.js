@@ -1,10 +1,12 @@
 import { generateTokenAndSetCookie } from "../utils/generateToken.js";
 import User from "../models/user.model.js";
 import bcrypt from 'bcryptjs'
+import Game from "../models/game.model.js";
 
 export const signup=async(req,res)=>{
     try {
-		const { fullName, username, email, password } = req.body;
+		const { fullName, username, email, password, gender } = req.body;
+		console.log(fullName, username, email, password, gender);
 
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		if (!emailRegex.test(email)) {
@@ -24,21 +26,30 @@ export const signup=async(req,res)=>{
 		if (password.length < 6) {
 			return res.status(400).json({ error: "Password must be at least 6 characters long" });
 		}
+		if(!gender){
+			return res.status(400).json({ error: "Gender required!" });
+		}
 
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
+
+		const boyProfilePic=`https://avatar.iran.liara.run/public/boy?username=${username}`;
+        const girlProfilePic=`https://avatar.iran.liara.run/public/girl?username=${username}`;
 
 		const newUser = new User({
 			fullName,
 			username,
 			email,
 			password: hashedPassword,
+			gender,
+			profileImg: gender === "male" ? boyProfilePic : girlProfilePic,
 		});
 
 		if (newUser) {
 			generateTokenAndSetCookie(newUser._id, res);
+			const gamedata=new Game({userId:newUser._id});
 			await newUser.save();
-
+			await gamedata.save();
 			res.status(201).json({
 				_id: newUser._id,
 				fullName: newUser.fullName,

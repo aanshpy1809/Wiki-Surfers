@@ -6,18 +6,11 @@ import ConnectMongoDB from "./db/connectMongoDB.js";
 import dotenv from "dotenv";
 import authRoutes from './routes/auth.route.js'
 import wikiRoutes from './routes/wiki.route.js'
-import userRoutes from './routes/user.route.js'
 import gameRoutes from './routes/game.route.js'
 import cookieParser from "cookie-parser";
 import { generateSourceAndTargetPage } from "./utils/generateSourceAndTargetPage.js";
-import {v2 as cloudinary} from "cloudinary";
 
 dotenv.config();
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-})
 const app = express();
 const server = http.createServer(app);
 const io=new Server(server, {
@@ -26,12 +19,11 @@ const io=new Server(server, {
         methods: ["GET","POST"]
     },
 });
-app.use(express.json({limit:"5mb"}));
+app.use(express.json());
 app.use(cookieParser());
 app.use('/api/auth',authRoutes);
 app.use('/api/wiki', wikiRoutes);
 app.use('/api/game', gameRoutes);
-app.use('/api/user', userRoutes);
 
 // To keep track of users' current page and clicks
 let users = {};
@@ -79,15 +71,13 @@ io.on("connection", (socket) => {
         if(userRoomMap[userId] ){
             console.log("clean")
             // rooms[userRoomMap[userId]].players = rooms[userRoomMap[userId]].players.filter(item => item !== userId);
-            
+            // delete rooms[userRoomMap[userId]];
             // console.log(rooms[userRoomMap[userId]]);
             console.log(userRoomMap[userId]);
             socket.to(userRoomMap[userId]).emit("opponentLeft");
             // delete userRoomMap[userId];
             socket.leave(userRoomMap[userId]);
-            delete rooms[userRoomMap[userId]];
             delete userRoomMap[userId];
-            
         }
     })
 
@@ -211,12 +201,12 @@ io.on("connection", (socket) => {
             delete userSocketMap[userId];
             rooms[userRoomMap[userId]].players = rooms[userRoomMap[userId]].players.filter(item => item !== userId);
             // console.log(rooms[userRoomMap[userId]]);
-            // if(rooms[userRoomMap[userId]].players.length===0){
-            //     delete rooms[userRoomMap[userId]];
-            // }
+            if(rooms[userRoomMap[userId]].players.length===0){
+                delete rooms[userRoomMap[userId]];
+            }
             socket.to(userRoomMap[userId]).emit("opponentMightHaveLeft");
             
-            socket.leave(userRoomMap[userId]); 
+            socket.leave(userRoomMap[userId]);
             // delete userRoomMap[userId];
         }
     });

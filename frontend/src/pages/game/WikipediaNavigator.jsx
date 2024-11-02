@@ -56,7 +56,7 @@ const WikipediaNavigator = ({
   // Handle link clicks within the Wikipedia content
   useEffect(() => {
     if (!socket) return;
-    socket.connect();
+    
     const handleLinkClick =async (event) => {
       event.preventDefault();
 
@@ -65,10 +65,7 @@ const WikipediaNavigator = ({
         const newPage = event.target.href.split("/wiki/")[1];  // Extract the Wikipedia page title
 
         // Check if the target page is reached
-        if (newPage === targetPage) {
-          setGameOver(true);
-          socket.emit("reached_target", roomId);  // Notify opponent that the target is reached
-        }
+        
         
         const check=await fetchPageContent(newPage, true);
         console.log(check);
@@ -140,22 +137,15 @@ const WikipediaNavigator = ({
   }, [socket, isOpponent]);
 
   return (
-    <div className="container mx-auto p-5 border-10 overflow-y-auto"
+    
+    <div className="container mx-auto p-5 border-10 overflow-y-auto max-h-[500px]"
       ref={contentRef}  // Use contentRef for both scrolling and click handling
-      style={{ height: '500px', overflowY: !isOpponent ? 'scroll' : 'hidden' }}  // Make sure the container is scrollable
+      style={{ overflowY: !isOpponent ? 'scroll' : 'hidden' }}  // Make sure the container is scrollable
     >
       <div className="flex flex-col md:flex-row justify-between">
         <p className="text-xl font-semibold">{user?.username}</p>
         <p className="text-xl font-semibold">Clicks: {clicks}</p>
       </div>
-
-      {/* Game Over Section */}
-      {gameOver ? (
-        <h2 className="text-2xl font-bold text-green-600">
-          Congratulations! You've reached the target page in {clicks} clicks.
-        </h2>
-      ) : (
-        // Render the Wikipedia page content with unique IDs for each navigator
         <div
           id={`wiki-content-${navigatorId}`}
           className={`prose prose-lg prose-blue max-w-none ${
@@ -163,8 +153,9 @@ const WikipediaNavigator = ({
           }`}
           dangerouslySetInnerHTML={{ __html: pageContent }}
         />
-      )}
+        
     </div>
+    
   );
 };
 

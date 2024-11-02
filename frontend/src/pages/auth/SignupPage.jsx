@@ -7,6 +7,7 @@ import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import GenderCheckbox from "./GenderCheckBox";
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -14,19 +15,25 @@ const SignUpPage = () => {
     username: "",
     fullName: "",
     password: "",
+    gender: "",
   });
+
+  const onCheckBoxChange=(gender)=>{
+    console.log(gender);
+    setFormData({...formData, gender: gender})
+  }
 
   const queryClient = useQueryClient();
 
   const { mutate: signupMutation, isError, isPending, error } = useMutation({
-    mutationFn: async ({ email, username, fullName, password }) => {
+    mutationFn: async ({ email, username, fullName, password, gender }) => {
       try {
         const res = await fetch("/api/auth/signup", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email, username, fullName, password }),
+          body: JSON.stringify({ email, username, fullName, password, gender }),
         });
 
         const data = await res.json();
@@ -110,6 +117,8 @@ const SignUpPage = () => {
               value={formData.password}
             />
           </label>
+
+          <GenderCheckbox onCheckBoxChange={onCheckBoxChange} selectedGender={formData.gender}/>
 
           <button className="btn w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg">
             {isPending ? "loading..." : "Sign Up"}
