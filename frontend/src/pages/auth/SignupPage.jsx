@@ -6,7 +6,8 @@ import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import GenderCheckbox from "./GenderCheckBox";
+import GenderCheckbox from './GenderCheckBox';
+
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
