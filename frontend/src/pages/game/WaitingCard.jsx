@@ -2,7 +2,7 @@ import React from 'react';
 
 const WaitingCard = ({ username, profilePic, playerNumber }) => {
   return (
-    <div className="flex flex-col justify-center items-center p-4 bg-gray-900 max-h-screen rounded-md ">
+    <div className="flex flex-1 mt-10 flex-col justify-center items-center p-4 max-h-screen rounded-md ">
       <header className='text-2xl mb-8'>Player {playerNumber}</header>
       <img
         src={profilePic}

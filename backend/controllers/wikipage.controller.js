@@ -4,6 +4,7 @@ import * as cheerio from "cheerio";
 import zlib from 'zlib';
 import { promisify } from "util";
 
+
 const compress = promisify(zlib.gzip);
 const decompress = promisify(zlib.gunzip);
 
@@ -19,6 +20,9 @@ export const fetchWikiPage=async(req,res)=>{
             
             return res.status(200).json(data);
         }
+
+        
+
         let response = await axios.get("https://en.wikipedia.org/w/api.php", {
             params: {
               action: "parse",
@@ -60,6 +64,7 @@ export const fetchWikiPage=async(req,res)=>{
           }
 
           const compressedData = await compress(htmldata);
+          
           await redis.set(pageTitle, compressedData); 
           await redis.expire(pageTitle, 86400); 
           

@@ -1,57 +1,66 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-
-
-
+import { useState } from "react";
 import { MdOutlineMail } from "react-icons/md";
+import { FaUser } from "react-icons/fa";
 import { MdPassword } from "react-icons/md";
-import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
+import { MdDriveFileRenameOutline } from "react-icons/md";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import GenderCheckbox from "./GenderCheckBox";
 
+const SignUpPage = () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    username: "",
+    fullName: "",
+    password: "",
+    gender: "",
+  });
 
-const LoginPage = () => {
-	const [formData, setFormData] = useState({
-		username: "",
-		password: "",
-	});
+  const onCheckBoxChange = (gender) => {
+    console.log(gender);
+    setFormData({ ...formData, gender: gender });
+  };
 
-	const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-	const { mutate: loginMutation, isError, isPending, error } = useMutation({
-		mutationFn: async ({ username, password }) => {
-			try {
-				const res = await fetch("/api/auth/login", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({ username, password }),
-				});
+  const { mutate: signupMutation, isError, isPending, error } = useMutation({
+    mutationFn: async ({ email, username, fullName, password, gender }) => {
+      try {
+        const res = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, username, fullName, password, gender }),
+        });
 
-				const data = await res.json();
-				if (!res.ok) throw new Error(data.error || "Failed to create account!");
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to create account!");
 
-				console.log(data);
-				return data;
-			} catch (error) {
-				console.log(error.message);
-				throw error;
-			}
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["authUser"] });
-		},
-	});
+        console.log(data);
+        return data;
+      } catch (error) {
+        console.log(error.message);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success("Account created successfully!");
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+    },
+  });
 
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		loginMutation(formData);
-	};
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    signupMutation(formData);
+  };
 
-	const handleInputChange = (e) => {
-		setFormData({ ...formData, [e.target.name]: e.target.value });
-	};
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-	return (
+  return (
 		<div className='max-w-screen-xl mx-auto flex min-h-screen px-10 '>
 			<div className='flex-1 hidden lg:flex items-center  justify-center'>
 				{/* <XSvg className=' lg:w-2/3 fill-white' /> */}
@@ -63,7 +72,7 @@ const LoginPage = () => {
 					<img src='/display.png' className=" w-96 lg:hidden fill-white " />
 					<h1 className='text-4xl font-extrabold text-white'>Join today.</h1>
 					<label className='input input-bordered rounded flex items-center gap-2'>
-						<MdOutlineMail className="text-orange-500"/>
+						<MdOutlineMail />
 						<input
 							type='text'
 							className='grow bg-gray-700 text-white p-2 rounded'
@@ -75,7 +84,7 @@ const LoginPage = () => {
 					</label>
 
 					<label className='input input-bordered rounded flex items-center gap-2'>
-						<MdPassword className="text-orange-500"/>
+						<MdPassword />
 						<input
 							type='password'
 							className='grow bg-gray-700 text-white p-2 rounded'
@@ -107,4 +116,4 @@ const LoginPage = () => {
 	);
 };
 
-export default LoginPage;
+export default SignUpPage;

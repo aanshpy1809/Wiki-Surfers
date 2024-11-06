@@ -2,7 +2,7 @@ import React from 'react';
 
 const SkeletonWaitingCard = () => {
   return (
-    <div className="flex flex-col justify-center max-h-screen items-center p-4 bg-gray-900 rounded-md  animate-pulse">
+    <div className="flex flex-col mt-10 justify-center max-h-screen items-center p-4 bg-gray-900 rounded-md  animate-pulse">
       
       <p className='text-lg text-red-500 mb-8'>Waiting for a user to join</p>
       <div className="w-36 h-36 bg-gray-300 rounded-full"></div>

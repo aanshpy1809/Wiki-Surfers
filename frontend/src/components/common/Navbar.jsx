@@ -12,7 +12,7 @@ const Navbar = ({}) => {
     return (
         <nav className="flex justify-between items-center px-4 py-1  bg-gradient-to-r from-orange-600 via-yellow-500 to-blue-400 text-white">
             
-            <img src="/appLogo.png" alt="logo" className="w-12 h-12 z-10" />
+            <img src="/appLogo.png" alt="logo" className="w-12 h-12 z-10 hover:scale-105 cursor-pointer" onClick={() => navigate("/")} />
 
             
             <div className="flex items-center space-x-4">
@@ -28,7 +28,7 @@ const Navbar = ({}) => {
                         alt="Profile Picture"
                         onClick={() => navigate("/profile")}
                         title='Profile'
-                        className="rounded-full w-10 h-10 border-2 border-gray-500 cursor-pointer hover:border-gray-300"
+                        className="rounded-full w-10 h-10 border-2 border-gray-500 cursor-pointer hover:border-orange-400"
                     />
                 
             </div>

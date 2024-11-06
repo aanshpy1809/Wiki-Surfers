@@ -15,12 +15,12 @@ const TimeOverModal = () => {
                 <h3 className={headerStyle}>
                     😢 Better luck next time!
                 </h3>
-                <p className="py-6 text-xl text-center">
+                <p className="py-6 text-xl text-center text-white">
                     Sorry but your time is over! 
                 </p>
                 <div className="modal-action justify-center">
                     <form method="dialog">
-                        <button onClick={handleClick} className="btn bg-white text-black font-semibold border-none shadow-md hover:shadow-lg transition duration-300">
+                        <button onClick={handleClick} className="btn rounded-full bg-blue-500 text-white font-semibold border-none shadow-md hover:bg-blue-600 hover:shadow-lg transition duration-300">
                             Home
                         </button>
                     </form>

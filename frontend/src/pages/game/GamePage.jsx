@@ -299,7 +299,7 @@ const GamePage = () => {
   return (
     <div >
       <marquee
-        className="text-white bg-red-500"
+        className="text-white bg-gradient-to-r from-orange-600 via-yellow-500 to-blue-400"
         behavior="scroll"
         direction="left"
         delay="100"
@@ -350,7 +350,7 @@ const GamePage = () => {
         </div>
       )} */}
       {isEmpty && !result && (
-        <div className="flex min-h-screen">
+        <div className="flex max-h-screen">
           <div className="w-1/2 overflow-auto">
             {/* <p className="text-green-500 text-center mt-4">
               {authUser?.username}
@@ -377,7 +377,7 @@ const GamePage = () => {
       )}
 
       { !isEmpty && (
-        <div className="flex min-h-screen ">
+        <div className="flex max-h-screen ">
           
           
             <div className="w-1/2 overflow-auto border-r  border-gray-300">
@@ -415,7 +415,7 @@ const GamePage = () => {
             </div>
           ) : (
             <>
-            <div className="w-1/2 min-h-screen ">
+            <div className="w-1/2 max-h-screen ">
             <div className="flex md:flex-row m-2 gap-2 ">
               <img 
                 src={opponentUser?.profileImg}
