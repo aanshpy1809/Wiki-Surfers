@@ -10,7 +10,7 @@ const ResultModal = ({ opponentWon }) => {
     };
 
     return (
-        <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle rounded-lg">
+        <dialog id="my_modal_1" className="modal modal-bottom sm:modal-middle rounded-lg">
             <div className="modal-box p-10 bg-gray-700 ">
                 <h3 className={headerStyle}>
                     {opponentWon ? "😢 Better luck next time!" : "🎉 Congratulations!"}

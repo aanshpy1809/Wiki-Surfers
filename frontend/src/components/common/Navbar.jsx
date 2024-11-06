@@ -8,25 +8,29 @@ const Navbar = ({}) => {
     const {data: gameData} =useQuery({
         queryKey: ["gamedata"],
       });
+      const {data: authUser}=useQuery({queryKey: ["authUser"]});
     return (
-        <nav className="flex justify-between items-center px-4 opacity-90 bg-gray-950 text-white">
+        <nav className="flex justify-between items-center px-4 py-1  bg-gradient-to-r from-orange-600 via-yellow-500 to-blue-400 text-white">
             
-            <img src="/appLogo.png" alt="logo" className="w-16 h-16" />
+            <img src="/appLogo.png" alt="logo" className="w-12 h-12 z-10" />
 
             
             <div className="flex items-center space-x-4">
                 
-                <div className="flex items-center space-x-1">
-                    <img src="/coin.png" alt="coin" className="w-10 h-10" />
-                    <span>{gameData?.coins}</span>
+                <div className="flex items-center space-x-0.5 ">
+                    <img src="/coin.png" alt="coin" className="w-8 h-8" />
+                    <span className='text-md font-bold'>{gameData?.coins}</span>
                 </div>
 
-                <button
-                    onClick={() => navigate('/profile')}
-                    className="bg-white text-blue-500 px-4 py-2  rounded-lg font-semibold hover:bg-gray-100"
-                >
-                    Profile
-                </button>
+                
+                    <img
+                        src={authUser.profileImg}
+                        alt="Profile Picture"
+                        onClick={() => navigate("/profile")}
+                        title='Profile'
+                        className="rounded-full w-10 h-10 border-2 border-gray-500 cursor-pointer hover:border-gray-300"
+                    />
+                
             </div>
         </nav>
     );

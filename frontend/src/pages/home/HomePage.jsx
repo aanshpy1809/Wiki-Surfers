@@ -55,6 +55,10 @@ const HomePage = () => {
       localStorage.removeItem("opponentClicks");
       localStorage.removeItem("opponentPage");
       localStorage.removeItem("gameStarted");
+      localStorage.removeItem("startTime");
+      localStorage.removeItem("modal");
+      localStorage.removeItem("opponentReachedTarget");
+      localStorage.removeItem("result");
     // }
   });
 
@@ -112,34 +116,44 @@ const HomePage = () => {
       <Navbar />
       <div className="flex flex-col justify-center mt-5">
         <div className="flex justify-center items-center ">
-          <img src={GeminiImage} alt="Gemini img" className="object-contain" />
+          <img src={GeminiImage} alt="Gemini img" className="object-contain" style={{ width: "500px" }} />
         </div>
-        <h1 className="text-3xl font-bold text-center">
-          Welcome to play the multiplayer game
+        <h1 className="text-xl mt-2 p-2 font-bold font-serif text-center">
+          A Wikipedia Game with a Desi Twist: Bollywood & Cricket Showdowns!
         </h1>
       </div>
       
-      <div className="flex flex-col items-center gap-5 mt-10 ">
-        <button className="btn bg-gray-950 btn-primary size-xl flex items-center space-x-1" onClick={joinGame}>
-          Join Game
-          <span className="flex items-center ml-2  bg-yellow-300 text-black font-semibold px-1.5 py-0.5 rounded-md" style={{fontSize: "10px"}}>
-                -100
-                <img src="/coin.png" alt="coin" className="w-3 h-3 ml-1" />
-                </span>
-        </button>
+      <div className="flex flex-col items-center gap-5 mt-6 ">
+      
+      <button
+        className="relative inline-flex items-center justify-center bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-500 hover:from-blue-400 hover:via-blue-500 hover:to-blue-600 text-white font-bold px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-transform transform hover:scale-105 duration-300"
+        onClick={joinGame}
+      >
+        <span className="absolute inset-0 bg-white opacity-10 rounded-full"></span> {/* Glossy overlay */}
+        <span className="relative">Join Game</span>
+        <span
+          className="flex items-center ml-2 bg-yellow-300 text-black font-semibold px-2 py-1 rounded-full shadow-inner relative"
+          style={{ fontSize: "10px" }}
+        >
+          -100
+          <img src="/coin.png" alt="coin" className="w-3 h-3 ml-1" />
+        </span>
+      </button>
+
+
         <button
-            className="btn bg-gray-950 btn-primary size-xl flex items-center space-x-1"
+            className="relative inline-flex items-center justify-center bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-500 hover:from-blue-400 hover:via-blue-500 hover:to-blue-600 text-white font-bold px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-transform transform hover:scale-105 duration-300"
             onClick={() => document.getElementById("my_modal_5").showModal()}
             >
             <span className="flex items-center">
                 Play with Friend
-                <span className="flex items-center ml-2  bg-yellow-300 text-black font-semibold px-1.5 py-0.5 rounded-md" style={{fontSize: "10px"}}>
+                <span className="flex items-center ml-2 bg-yellow-300 text-black font-semibold px-2 py-1 rounded-full shadow-inner relative" style={{fontSize: "10px"}}>
                 -100
                 <img src="/coin.png" alt="coin" className="w-3 h-3 ml-1" />
                 </span>
             </span>
             </button>
-        <button className="btn bg-gray-950 size-lg" onClick={handleLogout}>
+        <button className="relative inline-flex items-center justify-center bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-500 hover:from-blue-400 hover:via-blue-500 hover:to-blue-600 text-white font-bold px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-transform transform hover:scale-105 duration-300" onClick={handleLogout}>
           Logout
         </button>
       </div>

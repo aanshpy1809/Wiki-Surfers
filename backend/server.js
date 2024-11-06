@@ -67,7 +67,7 @@ io.on("connection", (socket) => {
     console.log(userSocketMap);
     if(userId!="undefined" && userRoomMap[userId]){
         
-        if(rooms[userRoomMap[userId]] && rooms[userRoomMap[userId]].players.length===1 && !rooms[userRoomMap[userId]].players.includes(userId)){
+        if(rooms[userRoomMap[userId]] && rooms[userRoomMap[userId]].players.length<2 && !rooms[userRoomMap[userId]].players.includes(userId)){
             rooms[userRoomMap[userId]].players.push(userId);
             socket.join(userRoomMap[userId]);
         }
@@ -196,7 +196,7 @@ io.on("connection", (socket) => {
       socket.on("checkForOpponent", (roomId) => {
         
         console.log(rooms[roomId]);
-        if(rooms[roomId].players.length===1){
+        if(rooms[roomId]?.players.length===1){
             socket.emit("opponentLeft");
         }
       })

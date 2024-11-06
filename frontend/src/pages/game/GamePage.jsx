@@ -17,6 +17,7 @@ import SkeletonWaitingCard from "./SkeletonWaitingCard";
 import PrivateWaiting from "./PrivateWaiting";
 import OpponentLeftTheGame from "./OpponentLeftTheGame";
 import TimerBox from "./TimerBox";
+import TimeOverModal from "./TimeOverModal";
 
 const GamePage = () => {
   const { socket } = useSocketContext();
@@ -27,7 +28,7 @@ const GamePage = () => {
   });
   const [opponentId, setOpponentId] = useState(null);
   const [opponentUser, setOpponentUser] = useState(null);
-  const [result, setResult] = useState(false);
+  const [result, setResult] = useState(localStorage.getItem("result") || false);
   const [targetPage, setTargetPage] = useState(null);
   const [currentPage1, setCurrentPage1] = useState(
     localStorage.getItem("userPage") || null
@@ -41,7 +42,7 @@ const GamePage = () => {
   const [clicks2, setClicks2] = useState(
     Number(localStorage.getItem("opponentClicks")) || 0
   );
-  const [opponentReachedTarget, setOpponentReachedTarget] = useState(false);
+  const [opponentReachedTarget, setOpponentReachedTarget] = useState(localStorage.getItem("opponentReachedTarget") || false);
   const [isEmpty, setIsEmpty] = useState(true);
   const [opponentLeft, setOpponentLeft] = useState(false);
   const [startCounter, setStartCounter] = useState(false);
@@ -53,7 +54,8 @@ const GamePage = () => {
   const {joinGame,gameLost,gameWon:gameWonUpdate, isPending}=useUpdateCoins();
   const [privateRoom, setPrivateRoom]=useState(false);
   const [timeOver, setTimeOver]=useState(false);
-  const [gameStarted, setGameStarted]=useState(false);
+  const [gameStarted, setGameStarted]=useState(localStorage.getItem("gameStarted") || false);
+  const [modal, setModal]=useState(localStorage.getItem("modal") || null);
   
   // const targetPage = "Instagram";
 
@@ -218,16 +220,16 @@ const GamePage = () => {
     socket.on("opponent_won", () => {
       setOpponentReachedTarget(true);
       setResult(true);
-      document.getElementById("my_modal_5").showModal();
+      localStorage.setItem("result", true);
+      
     });
 
     socket.on("opponentLeft", () => {
       console.log("opponent left");
-      if (!result) {
-        setOpponentLeft(true);
-        document.getElementById("my_modal_6").showModal();
-        increaseCoins();
-      }
+      
+      setOpponentLeft(true);
+        
+      
     });
 
     socket.on("opponentMightHaveLeft", () => {
@@ -246,16 +248,53 @@ const GamePage = () => {
     };
   }, [socket, roomId]);
 
+  useEffect(()=>{
+    if(timeOver){
+      setModal("my_modal_3");
+      setResult(true);
+      localStorage.setItem("result", true);
+    }
+  },[timeOver]);
+
+  useEffect(() => {
+    console.log(result, opponentReachedTarget);
+    // Perform any action you need with the updated state
+    if (opponentReachedTarget && result) {
+      // document.getElementById("my_modal_1").showModal();
+      setModal("my_modal_1");
+      localStorage.setItem("opponentReachedTarget", true);
+      localStorage.setItem("result", true);
+    }
+  }, [result, opponentReachedTarget]);
+
+  useEffect(() => {
+    if (opponentLeft && !result) {
+      // document.getElementById("my_modal_2").showModal();
+      setModal("my_modal_2");
+      setResult(true)
+      localStorage.setItem("result", true);
+      increaseCoins();
+    }
+  }, [opponentLeft]);
+
   useEffect(() => {
     if (currentPage1 !== null && currentPage1 === targetPage) {
       socket.emit("reached_target", roomId);
       setResult(true);
       increaseCoins();
-      document.getElementById("my_modal_5").showModal();
+      // document.getElementById("my_modal_1").showModal();
+      setModal("my_modal_1");
     }
 
     
   }, [currentPage1]);
+
+  useEffect(()=>{
+    if(modal){
+      document.getElementById(modal).showModal();
+      localStorage.setItem("modal", modal);
+    }
+  },[modal])
 
   return (
     <div >
@@ -268,7 +307,7 @@ const GamePage = () => {
         Please do not click on the browser back button until the game is over!
       </marquee>
       <div className="flex flex-col justify-center items-center w-full relative">
-        {/* <h1 className="flex justify-center items-center text-lg font-bold mb-4">Enjoy the Game!</h1> */}
+        <h1 className="flex justify-center items-center text-2xl font-bold mb-2">Enjoy the Game!</h1>
         
         <div className="flex items-center absolute top-1 right-4">
             <img src="/coin.png" alt="coin" className="w-8 h-8" />
@@ -287,22 +326,22 @@ const GamePage = () => {
         </div>
         <div className="flex flex-col md:flex-row justify-between">
           <div className="mb-4">
-            <p className="text-lg text-center font-semibold">
-              Source Page: {isEmpty?"Wait for the Game to start...":sourcePage?.replace("_", " ")}
+            <p className="text-md text-center font-semibold">
+              Source Page: {isEmpty && !result?"Wait for the Game to start...":sourcePage?.replace("_", " ")}
             </p>
-            <p className="text-lg text-center font-semibold">
-              Target Page: {isEmpty?"Wait for the Game to start...":targetPage?.replace("_", " ")}
+            <p className="text-md text-center font-semibold">
+              Target Page: {isEmpty && !result?"Wait for the Game to start...":targetPage?.replace("_", " ")}
             </p>
-            <div className="flex items-center mt-2 mb-2 justify-center">
-              <TimerBox/>
-            </div>
+            {gameStarted && <div className="flex items-center mt-2  justify-center">
+              <TimerBox timeOver={timeOver} setTimeOver={setTimeOver} result={result}/>
+            </div>}
             {startCounter && (
-              <p className="text-xl  font-semibold">Game starts in {counter}</p>
+              <p className="text-lg text-center text-green-500 font-semibold">Game starts in {counter}</p>
             )}
           </div>
         </div>
       </div>
-
+      <hr className=" border-gray-300" />
       {/* {opponentLeft && (
         <div className="flex justify-center  border-gray-300">
           <p className="text-green-500 text-center mt-4">
@@ -310,7 +349,7 @@ const GamePage = () => {
           </p>
         </div>
       )} */}
-      {isEmpty && (
+      {isEmpty && !result && (
         <div className="flex min-h-screen">
           <div className="w-1/2 overflow-auto">
             {/* <p className="text-green-500 text-center mt-4">
@@ -337,12 +376,20 @@ const GamePage = () => {
         </div>
       )}
 
-      {!opponentLeft && !isEmpty && (
+      { !isEmpty && (
         <div className="flex min-h-screen ">
           
           
             <div className="w-1/2 overflow-auto border-r  border-gray-300">
-              
+            <div className="flex md:flex-row m-2 gap-2 ">
+            <img 
+                src={authUser?.profileImg}
+                alt={`${authUser?.username}'s profile`}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+              <p className="text-sm font-semibold">{authUser?.username}</p>
+            </div>
+            <hr className=" border-gray-300" />
               <WikipediaNavigator
                 currentPage={currentPage1}
                 setCurrentPage={(newPage) => {
@@ -369,6 +416,15 @@ const GamePage = () => {
           ) : (
             <>
             <div className="w-1/2 min-h-screen ">
+            <div className="flex md:flex-row m-2 gap-2 ">
+              <img 
+                src={opponentUser?.profileImg}
+                alt={`${opponentUser?.username}'s profile`}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+              <p className="text-sm font-semibold">{opponentUser?.username}</p>
+            </div>
+            <hr className=" border-gray-300" />
               <WikipediaNavigator
                 currentPage={currentPage2}
                 setCurrentPage={() => {}} // Disable navigation for opponent
@@ -391,6 +447,7 @@ const GamePage = () => {
       
       <ResultModal opponentWon={opponentReachedTarget} />
       <OpponentLeftTheGame  />
+      <TimeOverModal/>
     </div>
   );
 };

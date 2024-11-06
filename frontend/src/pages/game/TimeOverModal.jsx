@@ -1,22 +1,22 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const OpponentLeftTheGame = () => {
+const TimeOverModal = () => {
     const navigate = useNavigate();
-    const headerStyle =  "font-bold text-3xl text-green-500";
+    const headerStyle =  "font-bold text-3xl text-red-500" ;
 
     const handleClick = () => {
         navigate("/");
     };
 
     return (
-        <dialog id="my_modal_2" className="modal modal-bottom sm:modal-middle rounded-lg">
+        <dialog id="my_modal_3" className="modal modal-bottom sm:modal-middle rounded-lg">
             <div className="modal-box p-10 bg-gray-700 ">
                 <h3 className={headerStyle}>
-                    🎉 Congratulations!
+                    😢 Better luck next time!
                 </h3>
                 <p className="py-6 text-xl text-center">
-                    Opponent has left the game and you have won!
+                    Sorry but your time is over! 
                 </p>
                 <div className="modal-action justify-center">
                     <form method="dialog">
@@ -30,4 +30,4 @@ const OpponentLeftTheGame = () => {
     );
 };
 
-export default OpponentLeftTheGame;
+export default TimeOverModal;

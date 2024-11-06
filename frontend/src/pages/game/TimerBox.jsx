@@ -1,23 +1,25 @@
 import React, { useEffect, useState } from 'react';
 
-const TimerBox = () => {
-  const totalDuration = 120; // Total duration in seconds (2 minutes)
+const TimerBox = ({ timeOver, setTimeOver, result }) => {
+  const totalDuration = 90;
 
   const [timeLeft, setTimeLeft] = useState(() => {
     const savedStartTime = localStorage.getItem('startTime');
     if (savedStartTime) {
       const elapsedTime = Math.floor((Date.now() - parseInt(savedStartTime, 10)) / 1000);
-      return Math.max(totalDuration - elapsedTime, 0); // Ensure time doesn't go negative
+      return Math.max(totalDuration - elapsedTime, 0);
     }
     return totalDuration;
   });
 
   useEffect(() => {
-    if (timeLeft > 0) {
+    // Check if the timer should run
+    if (timeLeft > 0 && !result) {
       const timer = setInterval(() => {
         setTimeLeft((prevTimeLeft) => {
           const newTimeLeft = prevTimeLeft - 1;
           if (newTimeLeft <= 0) {
+            setTimeOver(true);
             clearInterval(timer);
             return 0;
           }
@@ -27,7 +29,10 @@ const TimerBox = () => {
 
       return () => clearInterval(timer);
     }
-  }, [timeLeft]);
+    if(timeLeft === 0 && !result) {
+      setTimeOver(true);
+    }
+  }, [timeLeft, result, setTimeOver]);
 
   useEffect(() => {
     // Only set the start time if it's not already set
@@ -44,7 +49,7 @@ const TimerBox = () => {
 
   return (
     <div className="flex justify-center items-center h-10 w-20 bg-gray-800 text-white font-bold text-xl rounded-md shadow-md">
-      <p>Time Left: {formatTime(timeLeft)}</p>
+      <p>{formatTime(timeLeft)}</p>
     </div>
   );
 };

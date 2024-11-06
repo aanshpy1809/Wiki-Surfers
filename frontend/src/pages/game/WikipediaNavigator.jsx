@@ -142,10 +142,7 @@ const WikipediaNavigator = ({
       ref={contentRef}  // Use contentRef for both scrolling and click handling
       style={{ overflowY: !isOpponent ? 'scroll' : 'hidden' }}  // Make sure the container is scrollable
     >
-      <div className="flex flex-col md:flex-row justify-between">
-        <p className="text-xl font-semibold">{user?.username}</p>
-        <p className="text-xl font-semibold">Clicks: {clicks}</p>
-      </div>
+      
         <div
           id={`wiki-content-${navigatorId}`}
           className={`prose prose-lg prose-blue max-w-none ${
