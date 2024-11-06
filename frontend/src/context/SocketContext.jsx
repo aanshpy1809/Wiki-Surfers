@@ -16,7 +16,7 @@ export const SocketContextProvider=({children})=>{
         if (authUser ) {
             
 
-            const socket = io("http://localhost:5000", {
+            const socket = io("https://wiki-surfers.onrender.com/", {
                 query: {
                     userId: authUser._id,
                 }
