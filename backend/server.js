@@ -11,7 +11,10 @@ import gameRoutes from './routes/game.route.js'
 import cookieParser from "cookie-parser";
 import { generateSourceAndTargetPage } from "./utils/generateSourceAndTargetPage.js";
 import {v2 as cloudinary} from "cloudinary";
+import path from "path";
 
+
+const __dirname=path.resolve();
 dotenv.config();
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -32,6 +35,12 @@ app.use('/api/auth',authRoutes);
 app.use('/api/wiki', wikiRoutes);
 app.use('/api/game', gameRoutes);
 app.use('/api/user', userRoutes);
+
+app.use(express.static(path.join(__dirname,'/frontend/dist')));
+
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html'));
+})
 
 // To keep track of users' current page and clicks
 let users = {};
