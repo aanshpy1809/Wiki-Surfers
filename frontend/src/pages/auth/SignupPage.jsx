@@ -62,7 +62,8 @@ const SignUpPage = () => {
   };
 
   return (
-		<div className='max-w-screen-xl mx-auto flex min-h-screen px-10 '>
+    <>
+		<div className='max-w-screen-xl mx-auto flex  px-10 '>
 			<div className='flex-1 hidden lg:flex items-center  justify-center'>
 				{/* <XSvg className=' lg:w-2/3 fill-white' /> */}
 				<img src='/display.png' className="lg:w-full" />
@@ -144,8 +145,13 @@ const SignUpPage = () => {
             </button>
           </Link>
           </div>
+          
 			</div>
 		</div>
+    <footer class="text-center text-gray-500 py-4">
+            <p>Developed by <a href="https://www.linkedin.com/in/aansh-sagar/" class="text-blue-500 hover:underline">Aansh Sagar</a></p>
+        </footer>
+    </>
 	);
 };
 
