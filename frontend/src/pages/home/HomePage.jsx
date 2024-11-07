@@ -111,7 +111,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="flex flex-col  h-screen">
+    <div className="flex flex-col">
       
       <Navbar />
       <div className="flex flex-col justify-center mt-5">
@@ -156,10 +156,14 @@ const HomePage = () => {
         <button className="relative inline-flex items-center justify-center bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-500 hover:from-blue-400 hover:via-blue-500 hover:to-blue-600 text-white font-bold px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-transform transform hover:scale-105 duration-300" onClick={handleLogout}>
           Logout
         </button>
+        <footer class="text-center text-gray-500 py-4">
+          <p>Developed by <a href="https://www.linkedin.com/in/aansh-sagar/" class="text-blue-500 hover:underline">Aansh Sagar</a></p>
+        </footer>
       </div>
 
       
       <PlaywithFriendModal createRoom={createRoom} joinRoom={joinRoom} roomId={roomId} setRoomId={setRoomId}/>
+      
     </div>
   );
 };

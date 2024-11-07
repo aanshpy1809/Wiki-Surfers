@@ -65,6 +65,7 @@ function App() {
         <Route path='/game/:roomId' element={<GamePage/>} />
       </Routes>
       <Toaster/>
+      
     </div>
     
     
