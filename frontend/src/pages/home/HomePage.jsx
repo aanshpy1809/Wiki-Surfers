@@ -15,7 +15,7 @@ const HomePage = () => {
   const { data: authUser } = useQuery({
     queryKey: ["authUser"],
   });
-
+  const {data: gamedata}=useQuery({queryKey: ['gamedata']});
   
   const queryClient = useQueryClient();
   const location = useLocation();
@@ -87,26 +87,26 @@ const HomePage = () => {
   }, [socket, navigate]);
 
   const joinGame = () => {
-    // if(authUser.coins<100){
-    //     toast.error("Insufficient coins");
-    //     return
-    // }
+    if(gamedata.coins<100){
+        toast.error("Insufficient coins");
+        return
+    }
     socket.emit("joinGame", {userId: authUser._id, isPrivate: false});
   };
 
   const createRoom = () => {
-    // if(authUser.coins<100){
-    //     toast.error("Insufficient coins");
-    //     return
-    // }
+    if(gamedata.coins<100){
+        toast.error("Insufficient coins");
+        return
+    }
     socket.emit("joinGame", {userId: authUser._id, isPrivate: true});
   };
 
   const joinRoom = () => {
-    // if(authUser.coins<100){
-    //     toast.error("Insufficient coins");
-    //     return
-    // }
+    if(gamedata.coins<100){
+        toast.error("Insufficient coins");
+        return
+    }
     socket.emit("joinRoom", { roomId, userId: authUser._id });
   };
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 const TimerBox = ({ timeOver, setTimeOver, result }) => {
-  const totalDuration = 90;
+  const totalDuration = 120;
 
   const [timeLeft, setTimeLeft] = useState(() => {
     const savedStartTime = localStorage.getItem('startTime');

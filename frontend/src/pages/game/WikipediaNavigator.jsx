@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import { useSocketContext } from "../../context/SocketContext";
 import toast from "react-hot-toast";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { set } from "mongoose";
 
 const WikipediaNavigator = ({
   currentPage,
@@ -15,6 +17,7 @@ const WikipediaNavigator = ({
   user
 }) => {
   const [pageContent, setPageContent] = useState("");
+  const [isfetching, setIsfetching] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const contentRef = useRef(null);  // Single ref for both content and scrollable container
   const targetReached = currentPage === targetPage;
@@ -22,6 +25,7 @@ const WikipediaNavigator = ({
 
   // Fetch Wikipedia page content from the MediaWiki API
   const fetchPageContent = async (pageTitle, check) => {
+    setIsfetching(true);
     try {
       const response = await fetch('/api/wiki', {
         method: 'POST',
@@ -44,6 +48,8 @@ const WikipediaNavigator = ({
     } catch (error) {
       
       toast.error(error.message);
+    } finally {
+      setIsfetching(false);
     }
   };
 
@@ -142,14 +148,18 @@ const WikipediaNavigator = ({
       ref={contentRef}  // Use contentRef for both scrolling and click handling
       style={{ overflowY: !isOpponent ? 'scroll' : 'hidden' }}  // Make sure the container is scrollable
     >
-      
-        <div
+         {isfetching && (
+        <div className="mt-10 flex items-center justify-center">
+          <div className="spinner"></div>
+        </div>
+      )}
+        {pageContent && <div
           id={`wiki-content-${navigatorId}`}
           className={`prose prose-lg prose-blue max-w-none ${
             isOpponent ? "pointer-events-none" : ""  // Disable interaction for the opponent's screen
           }`}
           dangerouslySetInnerHTML={{ __html: pageContent }}
-        />
+        />}
         
     </div>
     
