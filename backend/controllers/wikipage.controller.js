@@ -13,6 +13,7 @@ export const fetchWikiPage=async(req,res)=>{
         let {pageTitle}=req.body;
         const exists = await redis.exists(pageTitle);
         if (exists) {
+            
             const compressedData = await redis.getBuffer(pageTitle); // Retrieve binary data
             const decompressedData = await decompress(compressedData);
             const data = decompressedData.toString();
@@ -34,7 +35,7 @@ export const fetchWikiPage=async(req,res)=>{
           });
 
           if (response.data.error) {
-            console.log(response.data.error.info);
+            
             return res.status(400).json({ error: "Page not found! Please try other link" });
           }
           
@@ -47,7 +48,7 @@ export const fetchWikiPage=async(req,res)=>{
           const redirectLink = $(".redirectMsg .redirectText a").attr("title");
           
           if (redirectLink) {
-            console.log(`Redirect detected to ${redirectLink}`);
+            
             pageTitle = redirectLink;  // Update pageTitle to redirect target
       
             // Refetch the page with the redirected title

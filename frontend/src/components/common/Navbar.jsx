@@ -11,8 +11,11 @@ const Navbar = ({}) => {
       const {data: authUser}=useQuery({queryKey: ["authUser"]});
     return (
         <nav className="flex justify-between items-center px-4 py-1  bg-gradient-to-r from-orange-600 via-yellow-500 to-blue-400 text-white">
+            <div className='flex justify-center items-center'>
+                <img src="/appLogo.png" alt="logo" className="w-12 h-12 z-10 hover:scale-105 cursor-pointer" onClick={() => navigate("/")} />
+                
+            </div>
             
-            <img src="/appLogo.png" alt="logo" className="w-12 h-12 z-10 hover:scale-105 cursor-pointer" onClick={() => navigate("/")} />
 
             
             <div className="flex items-center space-x-4">

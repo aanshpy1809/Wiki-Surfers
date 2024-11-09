@@ -4,7 +4,7 @@ import {v2 as cloudinary} from "cloudinary";
 export const update=async(req,res)=>{
     let {profileImg}=req.body;
     const userId=req.user._id;
-    console.log("called");
+    
     try {
         let user=await User.findById(userId);
 

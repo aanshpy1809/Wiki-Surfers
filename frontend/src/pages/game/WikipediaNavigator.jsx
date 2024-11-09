@@ -74,7 +74,7 @@ const WikipediaNavigator = ({
         
         
         const check=await fetchPageContent(newPage, true);
-        console.log(check);
+        
         if(check===undefined){
           return
         }
@@ -149,11 +149,11 @@ const WikipediaNavigator = ({
       style={{ overflowY: !isOpponent ? 'scroll' : 'hidden' }}  // Make sure the container is scrollable
     >
          {isfetching && (
-        <div className="mt-10 flex items-center justify-center">
+        <div className="mt-10 flex min-h-screen items-center justify-center">
           <div className="spinner"></div>
         </div>
       )}
-        {pageContent && <div
+        {pageContent && !isfetching && <div
           id={`wiki-content-${navigatorId}`}
           className={`prose prose-lg prose-blue max-w-none ${
             isOpponent ? "pointer-events-none" : ""  // Disable interaction for the opponent's screen

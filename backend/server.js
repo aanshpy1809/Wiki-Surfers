@@ -60,7 +60,7 @@ function generateRandomDigits(length = 6) {
 const userSocketMap={}
 const rooms={};
 const userRoomMap={};
-// I am going to improve you tomorro
+
 io.on("connection", (socket) => {
     console.log('A user connected', socket.id)
     const userId=socket.handshake.query.userId;
@@ -73,24 +73,27 @@ io.on("connection", (socket) => {
         }
         
     } 
+
     console.log(userSocketMap);
+    
     if(userId!="undefined" && userRoomMap[userId]){
         
         if(rooms[userRoomMap[userId]] && rooms[userRoomMap[userId]].players.length<2 && !rooms[userRoomMap[userId]].players.includes(userId)){
             rooms[userRoomMap[userId]].players.push(userId);
+            console.log("user rejoined room", userRoomMap[userId]);
             socket.join(userRoomMap[userId]);
         }
-        // console.log(rooms[userRoomMap[userId]]);
+        
     }
 
     socket.on("clean",(userId)=>{
-        console.log(userId,userRoomMap);
+        
         if(userRoomMap[userId] ){
-            console.log("clean")
+            
             // rooms[userRoomMap[userId]].players = rooms[userRoomMap[userId]].players.filter(item => item !== userId);
             
             // console.log(rooms[userRoomMap[userId]]);
-            console.log(userRoomMap[userId]);
+            
             socket.to(userRoomMap[userId]).emit("opponentLeft");
             // delete userRoomMap[userId];
             socket.leave(userRoomMap[userId]);
@@ -104,10 +107,10 @@ io.on("connection", (socket) => {
         let joined=false;
         let isEmpty=true;
         let roomId="";
-        console.log("joinGame")
+        
         if(!isPrivate){
             for(const room in rooms){
-            if(rooms[room].isEmpty && !rooms[room].isPrivate){
+            if(rooms[room].isEmpty && !rooms[room].isPrivate && !rooms[room].players.includes(userId)){
                 rooms[room].players.push(userId);
                 rooms[room].isEmpty=false;
                 isEmpty=false;
@@ -121,7 +124,7 @@ io.on("connection", (socket) => {
         if(!joined){
             roomId = generateRandomDigits(6);
             const {source,target}=generateSourceAndTargetPage();
-            console.log(source,target);
+            
             rooms[roomId]={roomId:roomId,players:[userId],isEmpty:true,isPrivate:isPrivate,source:source,target:target};
         }
 
@@ -145,7 +148,7 @@ io.on("connection", (socket) => {
     //privateRoom 
     socket.on("joinRoom",({roomId,userId})=>{
         let joined=false;
-        console.log(roomId);
+        
         for(const room in rooms){
             if(rooms[room].roomId===roomId && rooms[room].isEmpty){
                 rooms[room].players.push(userId);
@@ -169,13 +172,13 @@ io.on("connection", (socket) => {
     
     socket.on("roomLock",(roomId)=>{
         
-        console.log("room id for locking is :",roomId);         
+              
         const room=rooms[roomId];
         if(room==undefined) return;
         room.lock=true;
     })
     socket.on("roomDetails",(roomId)=>{
-        // console.log("room id is :",roomId);
+        
         const room=rooms[roomId]
         if(room==undefined) return;
         socket.emit("roomDetails",{room});
@@ -183,7 +186,7 @@ io.on("connection", (socket) => {
     socket.on("navigate_page", (data) => {
         
         const { room, newPage, clicks } = data;
-        console.log(room,":" ,newPage);
+        
         socket.to(room).emit("opponent_navigated", { newPage, clicks });
       });
     
@@ -204,7 +207,7 @@ io.on("connection", (socket) => {
 
       socket.on("checkForOpponent", (roomId) => {
         
-        console.log(rooms[roomId]);
+        
         if(rooms[roomId]?.players.length===1){
             socket.emit("opponentLeft");
         }
@@ -213,10 +216,13 @@ io.on("connection", (socket) => {
 
     socket.on("disconnect",()=>{
         console.log("user disconnected",socket.id)
-        
+        console.log(userRoomMap[userId]);
+        console.log(rooms[userRoomMap[userId]]);
+        console.log(userSocketMap[userId])
         userSocketMap[userId]=userSocketMap[userId].filter(user=>user!==socket.id);
-        
+        console.log(userSocketMap[userId])
         if(userRoomMap[userId] && userSocketMap[userId].length===0 && rooms[userRoomMap[userId]]){
+            console.log("hi")
             delete userSocketMap[userId];
             rooms[userRoomMap[userId]].players = rooms[userRoomMap[userId]].players.filter(item => item !== userId);
             // console.log(rooms[userRoomMap[userId]]);

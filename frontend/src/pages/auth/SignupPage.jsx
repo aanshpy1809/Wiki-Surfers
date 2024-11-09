@@ -19,7 +19,7 @@ const SignUpPage = () => {
   });
 
   const onCheckBoxChange = (gender) => {
-    console.log(gender);
+    
     setFormData({ ...formData, gender: gender });
   };
 
@@ -39,10 +39,10 @@ const SignUpPage = () => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to create account!");
 
-        console.log(data);
+        
         return data;
       } catch (error) {
-        console.log(error.message);
+        
         throw error;
       }
     },
@@ -62,7 +62,7 @@ const SignUpPage = () => {
   };
 
   return (
-    <>
+    <div className='flex flex-col min-h-screen justify-center items-center'>
 		<div className='max-w-screen-xl mx-auto flex  px-10 '>
 			<div className='flex-1 hidden lg:flex items-center  justify-center'>
 				{/* <XSvg className=' lg:w-2/3 fill-white' /> */}
@@ -148,10 +148,10 @@ const SignUpPage = () => {
           
 			</div>
 		</div>
-    <footer class="text-center text-gray-500 py-4">
-            <p>Developed by <a href="https://www.linkedin.com/in/aansh-sagar/" class="text-blue-500 hover:underline">Aansh Sagar</a></p>
+    <footer className="text-center text-gray-500 py-4">
+            <p>Developed by <a href="https://www.linkedin.com/in/aansh-sagar/" className="text-blue-500 hover:underline">Aansh Sagar</a></p>
         </footer>
-    </>
+    </div>
 	);
 };
 

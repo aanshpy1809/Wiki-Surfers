@@ -115,13 +115,13 @@ const GamePage = () => {
       try {
         const res = await fetch(`/api/auth/user/${opponentId}`);
         const data = await res.json();
-        console.log(data);
+        
         if (!res.ok) {
           throw new Error(data.error || "Something went wrong!");
         }
         setOpponentUser(data);
       } catch (error) {
-        console.log(error);
+        throw error;
       }
     };
 
@@ -161,7 +161,7 @@ const GamePage = () => {
 
     // Listen for room details (e.g., if the room is empty or has other users)
     socket.on("roomDetails", ({ room }) => {
-      console.log(room);
+      
       if (room.lock) {
         if (!room.players.includes(authUser._id)) {
           toast.error("Room is already full! Please start a new game");
@@ -193,7 +193,7 @@ const GamePage = () => {
       setTargetPage(room.target);
       for (const player in room.players) {
         if (room.players[player] !== authUser._id) {
-          console.log(room.players[player]);
+          
           setOpponentId(room.players[player]);
         }
       }
@@ -209,7 +209,7 @@ const GamePage = () => {
 
     // Listen for opponent's navigation updates
     socket.on("opponent_navigated", ({ newPage, clicks }) => {
-      console.log("Event recieved");
+      
       setCurrentPage2(newPage);
       setClicks2(clicks);
       localStorage.setItem("opponentClicks", clicks);
@@ -225,7 +225,7 @@ const GamePage = () => {
     });
 
     socket.on("opponentLeft", () => {
-      console.log("opponent left");
+      
       
       setOpponentLeft(true);
         
@@ -257,7 +257,7 @@ const GamePage = () => {
   },[timeOver]);
 
   useEffect(() => {
-    console.log(result, opponentReachedTarget);
+    
     // Perform any action you need with the updated state
     if (opponentReachedTarget && result) {
       // document.getElementById("my_modal_1").showModal();

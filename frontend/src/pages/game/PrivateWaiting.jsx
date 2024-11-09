@@ -6,7 +6,7 @@ const PrivateWaiting = ({ roomId }) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(roomId).then(() => {
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+      setTimeout(() => setCopied(false), 2000); 
     });
   };
 
