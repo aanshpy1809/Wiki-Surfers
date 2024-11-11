@@ -136,16 +136,7 @@ io.on("connection", (socket) => {
     });
 
     
-    // socket.on("createRoom",(userId)=>{
-    //     let roomId = generateRandomDigits(6);
-    //     const {source,target}=generateSourceAndTargetPage();
-    //     rooms[roomId]={roomId:roomId,players:[userId],isEmpty:true, isPrivate:true, source:source,target:target};
-    //     userRoomMap[userId]=roomId;
-    //     socket.join(roomId);
-    //     console.log(roomId);
-    //     socket.emit("Room_Joined", { roomId });
-    // })
-    //privateRoom 
+   
     socket.on("joinRoom",({roomId,userId})=>{
         let joined=false;
         
@@ -192,7 +183,7 @@ io.on("connection", (socket) => {
     
       
     socket.on('scroll', (data) => {
-          // Broadcast the scroll position to the other player
+          
         const {roomId, scrollPosition}=data;
         
         socket.to(roomId).emit('syncScroll', {scrollPosition});

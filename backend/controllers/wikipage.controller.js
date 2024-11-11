@@ -13,7 +13,7 @@ export const fetchWikiPage=async(req,res)=>{
         let {pageTitle}=req.body;
         const exists = await redis.exists(pageTitle);
         if (exists) {
-            
+            console.log("Cache hit");
             const compressedData = await redis.getBuffer(pageTitle); // Retrieve binary data
             const decompressedData = await decompress(compressedData);
             const data = decompressedData.toString();

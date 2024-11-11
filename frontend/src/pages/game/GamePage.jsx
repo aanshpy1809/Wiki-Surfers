@@ -314,12 +314,12 @@ const GamePage = () => {
             <span>{coins || gameData?.coins}</span>
             
             {isReducing && (
-            <span className="text-red-500 text-md absolute top-4 right-3 animate-fade-down">
+            <span className="text-red-500 font-bold text-md absolute top-4 right-3 animate-fade-down">
                 -100
             </span>
             )}
             {gameWon && (
-            <span className="text-green-500 text-md absolute top-6 right-1 animate-fade-up">
+            <span className="text-green-500 font-bold text-md absolute top-6 right-1 animate-fade-up">
                 +200
             </span>
             )}
