@@ -1,5 +1,5 @@
 import {useQuery} from '@tanstack/react-query'
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import HomePage from './pages/home/HomePage';
 import SignupPage from './pages/auth/SignupPage';
 import LoginPage from './pages/auth/LoginPage';
@@ -7,8 +7,23 @@ import { Toaster } from 'react-hot-toast';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import GamePage from './pages/game/GamePage';
 import ProfilePage from './pages/profile/ProfilePage';
+import { useEffect, useState } from 'react';
+import { useSocketContext } from './context/SocketContext';
 
 function App() {
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { socket } = useSocketContext();
+  const [previousPath, setPreviousPath] = useState(null);
+
+  useEffect(() => {
+    // Store the current path before the component re-renders with the new location
+    return () => setPreviousPath(location.pathname);
+  }, [location]);
+
+  
+
   const {data: authUser,isLoading, isError, error}=useQuery({
     queryKey: ['authUser'],
     queryFn: async()=>{
@@ -46,6 +61,21 @@ function App() {
     },
     retry: false
   })  
+
+  useEffect(() => {
+    
+  
+    if (location.pathname === "/" && previousPath && previousPath.startsWith("/game/")) {
+      if (!socket) return;
+      
+      if (!location.state || !location.state.fromInternal) {
+        // Redirect to home or display a message
+        socket.emit("clean", authUser._id);
+      }
+      
+      
+    }
+  }, [location, previousPath, socket]);
 
   if(isLoading){
     return (

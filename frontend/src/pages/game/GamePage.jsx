@@ -304,7 +304,7 @@ const GamePage = () => {
         direction="left"
         delay="100"
       >
-        Please do not click on the browser back button until the game is over!
+        🚨 Please do not click on the browser back button until the game is over! 🚨
       </marquee>
       <div className="flex flex-col justify-center items-center w-full relative">
         <h1 className="flex justify-center items-center text-2xl font-bold mb-2">Enjoy the Game!</h1>

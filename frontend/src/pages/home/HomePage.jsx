@@ -11,6 +11,7 @@ import PlaywithFriendModal from "./PlaywithFriendModal";
 const HomePage = () => {
   const { socket } = useSocketContext();
   const [roomId, setRoomId] = useState("");
+  
   const navigate = useNavigate(); // Move useNavigate here
   const { data: authUser } = useQuery({
     queryKey: ["authUser"],
@@ -20,6 +21,7 @@ const HomePage = () => {
   const queryClient = useQueryClient();
   const location = useLocation();
 
+  
   const { mutate: logout } = useMutation({
     mutationFn: async () => {
       try {
@@ -64,8 +66,9 @@ const HomePage = () => {
 
   useEffect(() => {
     if (!socket) return;
+    
     // if (!location.state || !location.state.fromInternal) {
-      socket.emit("clean", authUser._id);
+      
     // }
 
     socket.on("Room_Joined", ({ roomId }) => {

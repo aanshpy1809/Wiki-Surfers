@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
 import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
+import { FaUser } from "react-icons/fa";
 
 
 const LoginPage = () => {
@@ -64,7 +65,7 @@ const LoginPage = () => {
 					<img src='/display.png' className=" w-96 lg:hidden fill-white " />
 					<h1 className='text-4xl font-extrabold text-white'>Join today.</h1>
 					<label className='input input-bordered rounded flex items-center gap-2'>
-						<MdOutlineMail className="text-orange-500"/>
+						<FaUser className="text-orange-500"/>
 						<input
 							type='text'
 							className='grow bg-gray-700 text-white p-2 rounded'
