@@ -62,7 +62,7 @@ const rooms={};
 const userRoomMap={};
 
 io.on("connection", (socket) => {
-    console.log('A user connected', socket.id)
+    // console.log('A user connected', socket.id)
     const userId=socket.handshake.query.userId;
     
     if(userId!="undefined" ){
@@ -74,13 +74,13 @@ io.on("connection", (socket) => {
         
     } 
 
-    console.log(userSocketMap);
+    // console.log(userSocketMap);
     
     if(userId!="undefined" && userRoomMap[userId]){
         
         if(rooms[userRoomMap[userId]] && rooms[userRoomMap[userId]].players.length<2 && !rooms[userRoomMap[userId]].players.includes(userId)){
             rooms[userRoomMap[userId]].players.push(userId);
-            console.log("user rejoined room", userRoomMap[userId]);
+            // console.log("user rejoined room", userRoomMap[userId]);
             socket.join(userRoomMap[userId]);
         }
         
@@ -131,7 +131,7 @@ io.on("connection", (socket) => {
         
         socket.join(roomId);
         userRoomMap[userId]=roomId;
-        console.log(`User ${socket.id}, ${userId} joined room ${roomId}`);
+        // console.log(`User ${socket.id}, ${userId} joined room ${roomId}`);
         socket.emit("Room_Joined", { roomId }); // Emit an object
     });
 
@@ -215,14 +215,14 @@ io.on("connection", (socket) => {
     
 
     socket.on("disconnect",()=>{
-        console.log("user disconnected",socket.id)
-        console.log(userRoomMap[userId]);
-        console.log(rooms[userRoomMap[userId]]);
-        console.log(userSocketMap[userId])
+        // console.log("user disconnected",socket.id)
+        // console.log(userRoomMap[userId]);
+        // console.log(rooms[userRoomMap[userId]]);
+        // console.log(userSocketMap[userId])
         userSocketMap[userId]=userSocketMap[userId].filter(user=>user!==socket.id);
-        console.log(userSocketMap[userId])
+        // console.log(userSocketMap[userId])
         if(userRoomMap[userId] && userSocketMap[userId].length===0 && rooms[userRoomMap[userId]]){
-            console.log("hi")
+            // console.log("hi")
             delete userSocketMap[userId];
             rooms[userRoomMap[userId]].players = rooms[userRoomMap[userId]].players.filter(item => item !== userId);
             // console.log(rooms[userRoomMap[userId]]);
